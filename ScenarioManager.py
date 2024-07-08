@@ -1,12 +1,14 @@
 from pyevsim import BehaviorModelExecutor, SystemSimulator, Infinite
 
-from .CommunicationSet.TCP import Communication
+from CommunicationSet.client import Http_Client
 from SelectDevice import RecvDevice
 from RandomGenerator import RandomGenerator
 
 class ScenarioManager():
     def __init__(self) -> None:
-        self.communication = Communication()
+
+        self.communication = Http_Client()
+        self.communication.http_connect()
         self.Register_Engine()
 
     def Register_Engine(self):
@@ -20,7 +22,7 @@ class ScenarioManager():
         self.send_model.insert_input_port("start")
 
         self.RecvDevice_m = RecvDevice(0, Infinite, "RecvDevice_m", "Scenario", self.communication) # recv data(device data)
-        self.RandomGenerator_m = RandomGenerator(0, Infinite, "RandomGenerator_m", "Scenario", self.communication) # send data(update device data => random data)
+        self.RandomGenerator_m = RandomGenerator(0, Infinite, "RandomGenerator_m", "Scenario") # send data(update device data => random data)
 
         self.Register_Entity()
 

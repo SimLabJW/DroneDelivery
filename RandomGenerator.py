@@ -11,6 +11,7 @@ class RandomGenerator(BehaviorModelExecutor):
         self.insert_state("Generate",1)
 
         self.insert_input_port("start")
+        self.insert_output_port("done")
 
  
     def ext_trans(self, port, msg):
@@ -27,7 +28,7 @@ class RandomGenerator(BehaviorModelExecutor):
             print(f"선택된 숫자: {num1}, {num2}")
 
             # 요기서 메시지 전달받은 다음 규식이형한테 전달
-            msg = SysMessage([num1, num2], "random")
+            msg = SysMessage([num1, num2], "done")
             return msg
 
 
