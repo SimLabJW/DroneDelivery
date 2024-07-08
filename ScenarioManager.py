@@ -1,12 +1,12 @@
 from pyevsim import BehaviorModelExecutor, SystemSimulator, Infinite
 
-# from .CommunicationSet.TCP import Communication
-from SelectDevice import SelectDevice
+from .CommunicationSet.TCP import Communication
+from SelectDevice import RecvDevice
 from RandomGenerator import RandomGenerator
 
 class ScenarioManager():
     def __init__(self) -> None:
-        # self.communication = Communication()
+        self.communication = Communication()
         self.Register_Engine()
 
     def Register_Engine(self):
@@ -19,20 +19,21 @@ class ScenarioManager():
     def Insert_Port(self):
         self.send_model.insert_input_port("start")
 
-        self.SelectDevice_m = SelectDevice(0, Infinite, "SelectDevice_m", "Scenario")
-        self.RandomGenerator_m = RandomGenerator(0, Infinite, "RandomGenerator_m", "Scenario")
+        self.RecvDevice_m = RecvDevice(0, Infinite, "RecvDevice_m", "Scenario", self.communication) # recv data(device data)
+        self.RandomGenerator_m = RandomGenerator(0, Infinite, "RandomGenerator_m", "Scenario", self.communication) # send data(update device data => random data)
 
         self.Register_Entity()
 
     def Register_Entity(self):
-        self.send_model.register_entity(self.SelectDevice_m)
+        self.send_model.register_entity(self.RecvDevice_m)
         self.send_model.register_entity(self.RandomGenerator_m)
 
         self.Copuling_Relation()
 
     def Copuling_Relation(self):
-        self.send_model.coupling_relation(None, "start", self.SelectDevice_m, "start")
-        self.send_model.coupling_relation(self.SelectDevice_m, "start", self.RandomGenerator_m, "start")
+        self.send_model.coupling_relation(None, "start", self.RecvDevice_m, "start")
+        self.send_model.coupling_relation(self.RecvDevice_m, "random", self.RandomGenerator_m, "start")
+        self.send_model.coupling_relation(self.RandomGenerator_m, "done", self.RecvDevice_m, "start")
 
         self.start()
 
