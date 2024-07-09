@@ -10,6 +10,7 @@ class RecvDevice(BehaviorModelExecutor):
         self.init_state("Wait")
         self.insert_state("Wait", Infinite)
         self.insert_state("Generate",1)
+        self.insert_state("DATAIN",1)
 
         self.insert_input_port("start")
 
@@ -23,29 +24,28 @@ class RecvDevice(BehaviorModelExecutor):
 
     def output(self):
         if self._cur_state == "Generate":
-            print("In SelectDevice")
-            # self.raw_data = self.conn.recv(4096).decode("utf-8")
-
-            # 요기서 데이터를 수신 받고 출력하도록하는 코드를 작성하는 구조
-            # 서버로부터 데이터를 수신
             self.raw_data = self.conn.http_receive('http://192.168.50.75:13158/unity/receive')
-            print(f"Received data: {self.raw_data}")
-
+    
             # data recv code
             if self.raw_data :
-                # self.Modify_devcie_info(self.raw_data)
-                self._curstate = "Generate" 
+                print(f"Received data: {self.raw_data}")
+                self._curstate = "DATAIN" 
 
 
-        if self._cur_state == "Generate":
-            msg = SysMessage([self.raw_data], "random")
+        if self._cur_state == "DATAIN":
+
+            send_data = self.Modify_devcie_info(self.raw_data)
+            msg = SysMessage(self.get_name(), "random")
+            msg.insert(send_data)
             return msg
 
 
     def int_trans(self):
-        if self._cur_state == "Wait":
+        if self._cur_state == "Generate":
+            self._cur_state = "DATAIN"
+        elif self._cur_state == "DATAIN":
             self._cur_state = "Wait"
-        elif self._cur_state == "Generate":
+        elif self._cur_state == "Wait":
             self._cur_state = "Wait"
 
 
@@ -53,4 +53,26 @@ class RecvDevice(BehaviorModelExecutor):
         """
         device info classify
         """
-        print("Modifying device info with data: ", data)
+        unity_recv = []
+
+        if isinstance(data, dict):
+            # data가 딕셔너리인 경우
+            unity_recv.append({
+                "id": data['id'],
+                "home": data['home'],
+                "store": data['store'],
+                "state": data['state']
+            })
+        elif isinstance(data, list):
+            # data가 리스트인 경우
+            for data_index in data:
+                unity_recv.append({
+                    "id": data_index['id'],
+                    "home": data_index['home'],
+                    "store": data_index['store'],
+                    "state": data_index['state']
+                })
+        else:
+            print("Unsupported data format")
+
+        return unity_recv

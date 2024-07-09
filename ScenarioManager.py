@@ -13,7 +13,7 @@ class ScenarioManager():
 
     def Register_Engine(self):
         self.send = SystemSimulator()
-        self.send.register_engine("Scenario", "VIRTUAL_TIME", 1)
+        self.send.register_engine("Scenario", "REAL_TIME", 1)
         self.send_model = self.send.get_engine("Scenario")
 
         self.Insert_Port()
@@ -22,7 +22,7 @@ class ScenarioManager():
         self.send_model.insert_input_port("start")
 
         self.RecvDevice_m = RecvDevice(0, Infinite, "RecvDevice_m", "Scenario", self.communication) # recv data(device data)
-        self.RandomGenerator_m = RandomGenerator(0, Infinite, "RandomGenerator_m", "Scenario") # send data(update device data => random data)
+        self.RandomGenerator_m = RandomGenerator(0, Infinite, "RandomGenerator_m", "Scenario", self.communication) # send data(update device data => random data)
 
         self.Register_Entity()
 

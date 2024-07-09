@@ -12,25 +12,9 @@ CAR = {
     "State" : "None"
 }
 
-STATE = ["STAY", "DELIVERY", "ACCIDENT", "CANCEL"]
-
-STAY = {
-    "STAY" : 40, 
-    "DELIVERY" : 55, 
-    "ACCIDENT" : 5, 
-}
-
-DELIVERY = {
-    "DELIVERY" : 90, 
-    "ACCIDENT" : 5, 
-    "CANCEL" : 5
-}
-
-ACCIDENT = {
-    "ACCIDENT" : 95, 
-    "CANCEL" : 5
-}
-
-CANCEL = {
-    "STAY" : 100
+TRANSITIONS = {
+        "STAY": {"STAY": 40, "DELIVERY": 60},
+        "DELIVERY": {"DELIVERY": 96, "ACCIDENT": 2, "CANCEL": 2},
+        "ACCIDENT": {"ACCIDENT": 100},
+        "CANCEL": {"STAY": 100}
 }
