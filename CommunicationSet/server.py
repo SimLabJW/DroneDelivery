@@ -12,12 +12,23 @@ class Http_Server():
         client_received_data = request.json
         print(f"Received Data from Unity: \n{client_received_data}")
 
-        response_data = {
-            "id": client_received_data['id'],
-            "home": client_received_data['home'],
-            "store": client_received_data['store'],
-            "state": "processed"
-        }
+        response_data = []
+        if isinstance(client_received_data, list):
+            for item in client_received_data:
+                processed_item = {
+                    "id": item.get('id', 'N/A'),
+                    "home": item.get('home', 0),
+                    "store": item.get('store', 0),
+                    "state": "processed"
+                }
+                response_data.append(processed_item)
+        else:
+            response_data = {
+                "id": client_received_data.get('id', 'N/A'),
+                "home": client_received_data.get('home', 0),
+                "store": client_received_data.get('store', 0),
+                "state": "processed"
+            }
 
         return jsonify(response_data)
 

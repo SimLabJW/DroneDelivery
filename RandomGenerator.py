@@ -48,7 +48,7 @@ class RandomGenerator(BehaviorModelExecutor):
     def transition_state(self, device):
         current_state = device['state']
         if current_state not in DeviceInfo.TRANSITIONS:
-            print(f"Unknown state: {current_state}")
+            # print(f"Unknown state: {current_state}")
             return
 
         possible_states = list(DeviceInfo.TRANSITIONS[current_state].keys())
@@ -56,22 +56,23 @@ class RandomGenerator(BehaviorModelExecutor):
         selected_state = random.choices(possible_states, weights)[0]
 
         if current_state == "ACCIDENT":
-            print(f"Device {device['id']} remains in {selected_state} state.")
+            # print(f"Device {device['id']} remains in {selected_state} state.")
             return  # ACCIDENT 상태에서 다른 상태로 전환 불가
 
         if current_state == "DELIVERY" and selected_state == "DELIVERY":
-            print(f"Device {device['id']} remains in DELIVERY state.")
+            pass
+            # print(f"Device {device['id']} remains in DELIVERY state.")
         else:
-            print(f"Device {device['id']} transitioning \
-                  from {current_state} to {selected_state}")
+            # print(f"Device {device['id']} transitioning \
+                #   from {current_state} to {selected_state}")
             device['state'] = selected_state
 
             if selected_state == "DELIVERY":
                 numbers = random.sample(range(1, 67), 2)
                 device['home'] = numbers[0]
                 device['store'] = numbers[1]
-                print(f"Device {device['id']} updated with \
-                      home: {device['home']} and store: {device['store']}")
+                # print(f"Device {device['id']} updated with \
+                #       home: {device['home']} and store: {device['store']}")
                 
             elif selected_state == "ACCIDENT":
                 self.handle_accident_state(device)
@@ -79,7 +80,7 @@ class RandomGenerator(BehaviorModelExecutor):
                 device['state'] = 'STAY'
                 device['home'] = 0
                 device['store'] = 0
-                print(f"Device {device['id']} state set to STAY with home: 0 and store: 0")
+                # print(f"Device {device['id']} state set to STAY with home: 0 and store: 0")
 
     def handle_accident_state(self, accident_device):
         stay_devices = [d for d in self.devices if d['state'] == 'STAY']
@@ -88,5 +89,5 @@ class RandomGenerator(BehaviorModelExecutor):
             stay_device['home'] = accident_device['home']
             stay_device['store'] = accident_device['store']
             stay_device['state'] = 'DELIVERY'
-            print(f"Device {stay_device['id']} updated with home: {stay_device['home']} \
-                  and store: {stay_device['store']} due to accident of device {accident_device['id']}")
+            # print(f"Device {stay_device['id']} updated with home: {stay_device['home']} \
+            #       and store: {stay_device['store']} due to accident of device {accident_device['id']}")
