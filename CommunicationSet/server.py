@@ -3,80 +3,61 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 # 전송된 데이터를 저장할 변수
-client_received_data = None
+unity_received_data = []
+client_processed_data = []
 
-class Http_Server():
-    @app.route('/send', methods=['POST'])
-    def send():
-        global client_received_data
-        client_received_data = request.json
-        print(f"Received Data from Unity: \n{client_received_data}")
+@app.route('/sim/state/', methods=['POST'])
+def send():
+    global unity_received_data, client_processed_data
+    if request.is_json:
+        data = request.get_json()
+        unity_received_data = data
+        print(f"Received Data from Unity: \n{unity_received_data}")
 
-        response_data = []
-        if isinstance(client_received_data, list):
-            for item in client_received_data:
-                processed_item = {
-                    "id": item.get('id', 'N/A'),
-                    "home": item.get('home', 0),
-                    "store": item.get('store', 0),
-                    "state": "processed"
-                }
-                response_data.append(processed_item)
-        else:
-            response_data = {
-                "id": client_received_data.get('id', 'N/A'),
-                "home": client_received_data.get('home', 0),
-                "store": client_received_data.get('store', 0),
-                "state": "processed"
-            }
-
+        # 클라이언트가 보낸 데이터를 유니티로 전달하기 위해 response_data를 사용
+        response_data = client_processed_data if client_processed_data else unity_received_data
         return jsonify(response_data)
+    else:
+        return jsonify({"message": "Invalid data format"}), 400
 
-    @app.route('/unity/receive', methods=['GET'])
-    def unity_receive():
-        global client_received_data
-        if client_received_data:
-            return jsonify(client_received_data)
-        else:
-            return jsonify({
-                "id": "no_data",
-                "home": 0,
-                "store": 0,
-                "state": "no_data"
-            })
+@app.route('/client/send', methods=['POST'])
+def client_send():
+    global client_processed_data
+    if request.is_json:
+        data = request.get_json()
+        print(f"Received Data from Client: \n{data}")
 
-    @app.route('/client/send', methods=['POST'])
-    def client_send():
-        global client_received_data
-        client_received_data = request.json
-        print(f"Received Data from Client: \n{client_received_data}")
+        # 기존 데이터를 업데이트
+        for new_item in data:
+            for old_item in client_processed_data:
+                if old_item['id'] == new_item['id']:
+                    old_item.update(new_item)
+                    break
+            else:
+                client_processed_data.append(new_item)
 
         response_data = {
             "status": "success",
             "message": "Data received from client"
         }
-
         return jsonify(response_data)
+    else:
+        return jsonify({"message": "Invalid data format"}), 400
 
-    @app.route('/receive', methods=['GET'])
-    def receive():
-        global client_received_data
-        if client_received_data:
-            response_data = {
-                "id": client_received_data.get('id', 'N/A'),
-                "home": client_received_data.get('home', 0),
-                "store": client_received_data.get('store', 0),
-                "state": client_received_data.get('state', 'N/A')
-            }
-            return jsonify(response_data)
-        else:
-            return jsonify({"message": "No data received"}), 404
+@app.route('/client/receive', methods=['GET'])
+def client_receive():
+    global unity_received_data
+    if unity_received_data:
+        return jsonify(unity_received_data)
+    else:
+        return jsonify([])  # 빈 리스트를 반환하여 데이터가 없음을 나타냄
 
-    @app.route('/', methods=['GET'])
-    def home():
-        return "Welcome to the home page!"
+@app.route('/', methods=['GET'])
+def home():
+    return "Welcome to the home page!"
 
-    def start():
-        app.run(host='192.168.50.75', port=13158)
+def start():
+    app.run(host='0.0.0.0', port=17148)
 
-Http_Server.start()
+if __name__ == '__main__':
+    start()

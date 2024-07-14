@@ -30,7 +30,7 @@ class RandomGenerator(BehaviorModelExecutor):
                     self.transition_state(rd, random_data)
 
             print(f"send data: {random_data}")
-            self.conn.http_send('http://192.168.50.75:13158/client/send', random_data)
+            self.conn.http_send('http://192.168.50.75:17148/client/send', random_data)
             msg = SysMessage(self.get_name(), "done")
             return msg
 

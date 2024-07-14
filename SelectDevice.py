@@ -24,7 +24,7 @@ class RecvDevice(BehaviorModelExecutor):
 
     def output(self):
         if self._cur_state == "Generate":
-            self.raw_data = self.conn.http_receive('http://192.168.50.75:13158/unity/receive')
+            self.raw_data = self.conn.http_receive('http://192.168.50.75:17148/client/receive')
     
             # data recv code
             if self.raw_data :
