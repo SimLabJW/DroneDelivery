@@ -28,7 +28,6 @@ class RecvDevice(BehaviorModelExecutor):
     
             # data recv code
             if self.raw_data :
-                print(f"Received data: {self.raw_data}")
                 self._curstate = "DATAIN" 
 
 
